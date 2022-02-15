@@ -3,9 +3,16 @@ from selenium.webdriver.chrome.options import Options
 import json
 
 class browserManage:
+    """
+    Chrome Webドライバの管理クラス
+    """
     driver = None
     options = None
     def __init__(self) -> None:
+        """
+        コンストラクタ  
+        Chrome Webドライバのセットアップ
+        """
         self.options = Options()
         settings = {"recentDestinations": [{"id": "Save as PDF",
                                             "origin": "local",
@@ -19,4 +26,15 @@ class browserManage:
         self.driver = webdriver.Chrome(options=self.options)
 
     def get_driver(self):
+        """
+        Chrome Webドライバのゲッター
+        Parameters
+        ----------
+        なし
+
+        Returns
+        -------
+        selenium.webdriver
+            Chrome Webドライバ
+        """
         return self.driver

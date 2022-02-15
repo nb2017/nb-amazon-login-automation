@@ -3,11 +3,28 @@ import json
 from module.browser_mng import browserManage
 
 class amazonLoginAutomation:
+    """
+    Amazonへの自動ログインを行うクラス
+    """
     login_setting = None
     def __init__(self) -> None:
+        """
+        コンストラクタ
+        """
         json_open = open('settings/amazon_login_setting.json', 'r')
         self.login_setting = json.load(json_open)
     def execute(self, driver = None):
+        """
+        自動ログインを実行する
+        Parameters
+        ----------
+        driver : browserManage
+            Chrome Webドライバ
+
+        Returns
+        -------
+        なし
+        """
         if driver is None:
             driver = browserManage().get_driver()
         #画面遷移
