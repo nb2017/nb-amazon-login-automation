@@ -1,40 +1,53 @@
 import time
 import json
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from module.browser_mng import browserManage
 
 class amazonLoginAutomation:
-    driver = None
-    options = None
+    """
+    Amazonへの自動ログインを行うクラス
+    """
     login_setting = None
     def __init__(self) -> None:
-        self.options = Options()
-        self.options.add_experimental_option('detach', True)
-        self.driver = webdriver.Chrome(options=self.options)
+        """
+        コンストラクタ
+        """
         json_open = open('settings/amazon_login_setting.json', 'r')
         self.login_setting = json.load(json_open)
-    def execute(self):
+    def execute(self, driver = None):
+        """
+        自動ログインを実行する
+        Parameters
+        ----------
+        driver : browserManage
+            Chrome Webドライバ
+
+        Returns
+        -------
+        なし
+        """
+        if driver is None:
+            driver = browserManage().get_driver()
         #画面遷移
-        self.driver.get('https://www.amazon.co.jp/')
+        driver.get('https://www.amazon.co.jp/')
 
         #ログイン画面に遷移
-        mailad = self.driver.find_element_by_id('nav-link-accountList')
+        mailad = driver.find_element_by_id('nav-link-accountList')
         mailad.click()
 
         # ログインIDを入力
-        login_id = self.driver.find_element_by_id("ap_email")
+        login_id = driver.find_element_by_id("ap_email")
         login_id.send_keys(self.login_setting['login_email'])
 
-        # 「次に進む」をクリック
-        nextb = self.driver.find_element_by_class_name("a-button-input")
+        #「次に進む」をクリック
+        nextb = driver.find_element_by_class_name("a-button-input")
         nextb.click()
         time.sleep(1)
 
-        # パスワードを入力
-        password = self.driver.find_element_by_name("password")
+        #パスワードを入力
+        password = driver.find_element_by_name("password")
         password.send_keys(self.login_setting['login_password'])
 
-        # 「ログイン」をクリック
-        nextb = self.driver.find_element_by_id("signInSubmit")
+        #「ログイン」をクリック
+        nextb = driver.find_element_by_id("signInSubmit")
         nextb.click()
         time.sleep(1)
