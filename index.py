@@ -3,6 +3,7 @@ from module.amazon_orders_info import amazonOrdersInfo
 from module.browser_mng import browserManage
 
 if __name__ == "__main__":
-    browser = browserManage().get_driver()
-    amazonLoginAutomation().execute(browser)
-    amazonOrdersInfo().execute(browser)
+    driver = browserManage().get_driver()
+    amazonLoginAutomation().execute(driver=driver)
+    amazonOrdersInfo().execute(driver=driver)
+    driver.quit()
