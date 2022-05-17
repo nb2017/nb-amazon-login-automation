@@ -150,18 +150,21 @@ class amazonOrdersInfo:
         # pdf化したものをダウンロードフォルダから指定フォルダに名前を変更して保存する
 
         new_filename = driver.find_element_by_class_name('h1').text + '.pdf'# 新しいファイル名
-        timestamp_now = time.time() # 現在時刻
-        # ダウンロードフォルダを走査
-        for (dirpath, dirnames, filenames) in os.walk(self.amazon_orders_pdf_setting['download_path']):
-            for filename in filenames:
-                if filename.lower().endswith(('.pdf')):
-                    full_path = os.path.join(self.amazon_orders_pdf_setting['download_path'], filename)
-                    timestamp_file = os.path.getmtime(full_path) # ファイルの時間
-                    # 3秒以内に生成されたpdfを移動する
-                    if (timestamp_now - timestamp_file) < 3: 
-                        full_new_path = os.path.join(self.amazon_orders_pdf_setting['save_path'], new_filename)
-                        os.rename(full_path, full_new_path)
-                        print(full_path+' is moved to '+full_new_path) 
+        try:
+            timestamp_now = time.time() # 現在時刻
+            # ダウンロードフォルダを走査
+            for (dirpath, dirnames, filenames) in os.walk(self.amazon_orders_pdf_setting['download_path']):
+                for filename in filenames:
+                    if filename.lower().endswith(('.pdf')):
+                        full_path = os.path.join(self.amazon_orders_pdf_setting['download_path'], filename)
+                        timestamp_file = os.path.getmtime(full_path) # ファイルの時間
+                        # 3秒以内に生成されたpdfを移動する
+                        if (timestamp_now - timestamp_file) < 3: 
+                            full_new_path = os.path.join(self.amazon_orders_pdf_setting['save_path'], new_filename)
+                            os.rename(full_path, full_new_path)
+                            print(full_path+' is moved to '+full_new_path) 
+        except:
+            pass
 
     def changeNextPage(self, driver = None):
         """
