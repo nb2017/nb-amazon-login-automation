@@ -1,6 +1,8 @@
 import time
 import json
 from module.browser_mng import browserManage
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 
 class amazonLoginAutomation:
     """
@@ -31,23 +33,27 @@ class amazonLoginAutomation:
         driver.get('https://www.amazon.co.jp/')
 
         #ログイン画面に遷移
-        mailad = driver.find_element_by_id('nav-link-accountList')
+        mailad = driver.find_element(By.ID, 'nav-link-accountList-nav-line-1')
+        actions = ActionChains(driver=driver)
+        actions.move_to_element(mailad)
         mailad.click()
 
-        # ログインIDを入力
-        login_id = driver.find_element_by_id("ap_email")
+        # # ログインIDを入力
+        login_id = driver.find_element(By.ID, "ap_email")
         login_id.send_keys(self.login_setting['login_email'])
+        time.sleep(1)
 
-        #「次に進む」をクリック
-        nextb = driver.find_element_by_class_name("a-button-input")
+        # #「次に進む」をクリック
+        nextb = driver.find_element(By.ID, "continue")
         nextb.click()
         time.sleep(1)
 
-        #パスワードを入力
-        password = driver.find_element_by_name("password")
+        # #パスワードを入力
+        password = driver.find_element(By.NAME, "password")
         password.send_keys(self.login_setting['login_password'])
-
-        #「ログイン」をクリック
-        nextb = driver.find_element_by_id("signInSubmit")
-        nextb.click()
         time.sleep(1)
+
+        # #「ログイン」をクリック
+        nextb = driver.find_element(By.ID, "auth-signin-button")
+        nextb.click()
+        time.sleep(10)
