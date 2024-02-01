@@ -56,4 +56,4 @@ class amazonLoginAutomation:
         # #「ログイン」をクリック
         nextb = driver.find_element(By.ID, "auth-signin-button")
         nextb.click()
-        time.sleep(10)
+        time.sleep(1)
