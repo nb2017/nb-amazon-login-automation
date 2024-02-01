@@ -1,10 +1,12 @@
 import time
 import os
 import json
+import shutil
 
 from module.browser_mng import browserManage
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 class amazonOrdersInfo:
@@ -37,22 +39,24 @@ class amazonOrdersInfo:
 
         for period in self.amazon_orders_pdf_setting['periods']:
             # 注文履歴画面へ
-            order_history = driver.find_element_by_id('nav-orders')
+            order_history = driver.find_element(By.ID, 'nav-orders')
             order_history.click()
             time.sleep(2)
             # 対象の期間をセットする
             self.changePeriods(period, driver=driver)
+            all_page_num = int(driver.find_element(By.CLASS_NAME, 'num-orders').text.replace('件',''))
+            print(f'処理予定ページ数：{all_page_num}')
             # すべてのページで行う
-            while True:
+            for page_num in range(all_page_num):
 
                 main_handle = driver.current_window_handle
-                receipt_links = driver.find_elements_by_link_text('領収書等')
+                receipt_links = driver.find_elements(By.LINK_TEXT, '領収書等')
                 # 1ページないのすべての領収書で行う
                 for receipt_link in receipt_links:
                     try:
                         receipt_link.click()
                         time.sleep(1)
-                        receipt_purchase_link = driver.find_element_by_link_text('領収書／購入明細書')
+                        receipt_purchase_link = driver.find_element(By.LINK_TEXT, '領収書／購入明細書')
                         # 商品の注文履歴ページに遷移
                         self.openOrderInfoPage(driver=driver, receipt_purchase_link=receipt_purchase_link)
                         # PDFダウンロード
@@ -88,9 +92,9 @@ class amazonOrdersInfo:
         if driver is None:
             driver = browserManage().get_driver()
         if F'{str(period)}年':
-            period_links = driver.find_element_by_class_name('a-dropdown-prompt')
+            period_links = driver.find_element(By.CLASS_NAME, 'a-dropdown-prompt')
             period_links.click()
-            period_links = driver.find_element_by_link_text(F'{str(period)}年')
+            period_links = driver.find_element(By.LINK_TEXT, F'{str(period)}年')
             period_links.click()
 
     def openOrderInfoPage(self, driver = None, receipt_purchase_link = None):
@@ -110,7 +114,7 @@ class amazonOrdersInfo:
         if driver is None:
             driver = browserManage().get_driver()
         if receipt_purchase_link is None:
-            receipt_purchase_link = driver.find_element_by_link_text('領収書／購入明細書')
+            receipt_purchase_link = driver.find_element(By.LINK_TEXT, '領収書／購入明細書')
 
         # クリック前のハンドルリスト
         handles_before = driver.window_handles
@@ -149,7 +153,8 @@ class amazonOrdersInfo:
 
         # pdf化したものをダウンロードフォルダから指定フォルダに名前を変更して保存する
 
-        new_filename = driver.find_element_by_class_name('h1').text + '.pdf'# 新しいファイル名
+        elem = driver.find_element(By.CLASS_NAME, 'h1')
+        new_filename = elem.text + '.pdf'# 新しいファイル名
         try:
             timestamp_now = time.time() # 現在時刻
             # ダウンロードフォルダを走査
@@ -159,12 +164,11 @@ class amazonOrdersInfo:
                         full_path = os.path.join(self.amazon_orders_pdf_setting['download_path'], filename)
                         timestamp_file = os.path.getmtime(full_path) # ファイルの時間
                         # 3秒以内に生成されたpdfを移動する
-                        if (timestamp_now - timestamp_file) < 3: 
-                            full_new_path = os.path.join(self.amazon_orders_pdf_setting['save_path'], new_filename)
-                            os.rename(full_path, full_new_path)
-                            print(full_path+' is moved to '+full_new_path) 
-        except:
-            pass
+                        if (timestamp_now - timestamp_file) < 3:
+                            shutil.move(full_path, self.amazon_orders_pdf_setting['save_path'])
+                            print(f'{full_path} is moved to {self.amazon_orders_pdf_setting['save_path']}')
+        except Exception as e:
+            print(f'ERROR {e}')
 
     def changeNextPage(self, driver = None):
         """
@@ -182,8 +186,8 @@ class amazonOrdersInfo:
             driver = browserManage().get_driver()
         try:
             # 次へのボタンが押せなくなった時点で終了
-            driver.find_element_by_class_name('a-last').find_element_by_tag_name('a')
-            driver.find_element_by_class_name('a-last').click()
+            driver.find_element(By.CLASS_NAME, 'a-last').find_element(By.TAG_NAME, 'a')
+            driver.find_element(By.CLASS_NAME, 'a-last').click()
             driver.switch_to.window(driver.window_handles[-1])
         except:
             raise
